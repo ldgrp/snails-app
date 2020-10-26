@@ -1,4 +1,4 @@
-# Snails App
+# pocketCampus App
 
 Companion app for interacting with Snails dashboards.
 

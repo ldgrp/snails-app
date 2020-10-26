@@ -30,7 +30,7 @@ const RegisterScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={{padding: 20}}>
         <Appbar.BackAction style={{marginLeft: -10, marginTop: -10}} onPress={() => navigation.goBack()}/>
-        <Headline>Welcome to Snails</Headline>
+        <Headline>Welcome to pocketCampus</Headline>
         <Caption>We're glad to have you.</Caption>
         <View style={styles.inputContainer}>
           <Caption>{error}</Caption>

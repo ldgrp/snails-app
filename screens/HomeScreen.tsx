@@ -18,7 +18,7 @@ const Bar = () => {
     </View>
     <View>
       <Title>
-        Snails
+        pocketCampus
       </Title>
     </View>
     <View>

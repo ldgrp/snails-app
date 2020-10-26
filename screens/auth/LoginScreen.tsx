@@ -33,7 +33,7 @@ const LoginScreen = () => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <SafeAreaView style={styles.screen}>
           <View>
-            <Title style={styles.title}>Snails</Title>
+            <Title style={styles.title}>pocketCampus</Title>
             <Caption style={styles.error}>{error}</Caption>
             <TextInput
               label="Username"
