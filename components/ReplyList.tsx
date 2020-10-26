@@ -59,7 +59,7 @@ const ReplyList: React.FC<Props> = (props) => {
       refreshing={isRefreshing}
       onRefresh={refresh}
       ListFooterComponentStyle={styles.footer}
-      keyExtractor={item => item.entry_id} 
+      keyExtractor={item => item.entry_id.toString()} 
       renderItem={item => 
         <Entry entry={item.item}/>
       }

@@ -49,13 +49,12 @@ const LoginScreen = () => {
               onChangeText={text => setPassword(text)}
               style={styles.input}
             />
-            {isLoading ? <ActivityIndicator color={'#0a7cff'}/> :
+            {isLoading ? <ActivityIndicator/> :
             <Button 
               onPress={onLoginPress} 
               disabled={username.length==0 || password.length==0}
               mode="contained"
               contentStyle={styles.buttonContent}
-              color={'#0a7cff'}
             >
               Login
             </Button>
@@ -66,7 +65,6 @@ const LoginScreen = () => {
           <View style={styles.separator}/>
           <Subheading style={styles.or}>OR</Subheading>
           <Button 
-            color={'#0a7cff'} 
             contentStyle={styles.buttonContent}
             mode="contained" 
             onPress={onRegisterPress}>

@@ -75,7 +75,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     margin: 20,
     right: 0,
-    bottom: 0
+    bottom: 0,
+    backgroundColor: "#7030a0"
   },
   bar: {
     marginTop: Platform.OS === "ios" ? 0 : Constants.statusBarHeight,

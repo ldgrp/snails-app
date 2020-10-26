@@ -24,6 +24,7 @@ const EntryScreen = () => {
     entry ?
     <Avatar.Text 
       label={entry.author.name.split(' ').map(x => x[0]).join('')}
+        style={{backgroundColor: "#7030a0"}}
       size={40}
     />
     : null
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: -25,
     marginRight: 25,
+    backgroundColor: "#7030a0"
   },
   shimmer1: {
     borderRadius: 50,

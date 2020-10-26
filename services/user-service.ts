@@ -3,9 +3,9 @@ import { UserModel, TokenResponse } from "../model/user"
 import { axios_ } from "./index"
 import { AxiosResponse, AxiosError } from "axios"
 
-export const register = (username: string, password: string) : Promise<string> => 
+export const register = (name: string, username: string, password: string) : Promise<string> => 
   new Promise((resolve, reject) => {
-    const data = {"username": username, "password": password}
+    const data = {"name": name, "username": username, "password": password}
     axios_.post<TokenResponse>('/user/register', data)
       .then((response: AxiosResponse<TokenResponse>) => 
         resolve(response.data.access_token)
@@ -13,7 +13,7 @@ export const register = (username: string, password: string) : Promise<string> =
       .catch((error: AxiosError) => {
         console.log(error.response?.data)
         console.log(error.response?.status)
-        reject(error.message)
+        reject(error.response?.data)
       })
   })
 
@@ -28,7 +28,7 @@ export const login = (username: string, password: string) : Promise<string> =>
       .catch((error: AxiosError) => {
         console.log(error.response?.data)
         console.log(error.response?.status)
-        reject(error.message)
+        reject(error.response?.data)
       })
   })
 

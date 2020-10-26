@@ -25,6 +25,7 @@ const Entry: React.FC<Props> = (props) => {
     <View style={styles.avatarContainer}>
       <Avatar.Text 
         label={name.split(' ').map(x => x[0]).join('')}
+        style={{backgroundColor: "#7030a0"}}
         size={40}
       />
     </View>

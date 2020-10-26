@@ -65,7 +65,8 @@ const MessagesScreen = () => {
         renderItem={item =>
           <List.Item 
             style={styles.item}
-            left={() => <Avatar.Text label={threads[item.item].to.name.split(' ').map(x => x[0]).join('')} size={50}/>}
+        
+            left={() => <Avatar.Text style={{backgroundColor: "#7030a0"}} label={threads[item.item].to.name.split(' ').map(x => x[0]).join('')} size={50}/>}
             right={() => <Text style={{paddingVertical: 10, color: "gray"}}>{toRelativeDate(now, threads[item.item].messages[0].created_at)}</Text>}
             title={threads[item.item].to.name} 
             description={threads[item.item].messages[0].content } 

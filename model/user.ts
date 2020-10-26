@@ -9,7 +9,7 @@ export interface UsersModel {
   user: UserModel | null
   token: string | null
   login: Thunk<UsersModel, {username: string, password: string}, Injections>
-  register: Thunk<UsersModel, {username: string, password: string}, Injections>
+  register: Thunk<UsersModel, {name: string, username: string, password: string}, Injections>
   addToken: Action<UsersModel, {user: UserModel, token: string}>
   clear: Action<UsersModel>
   isLoggedIn: Computed<UsersModel, boolean>
@@ -40,10 +40,10 @@ const usersModel: UsersModel = {
     actions.addToken({user, token})
   }),
 
-  register: thunk(async (actions, {username, password}, { injections }) => {
+  register: thunk(async (actions, {name, username, password}, { injections }) => {
     const { userService } = injections
     actions.clear()
-    const token = await userService.login(username, password)
+    const token = await userService.register(name, username, password)
     const user = await userService.getUser(username)
     actions.addToken({user, token})
   }),
