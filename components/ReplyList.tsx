@@ -3,25 +3,21 @@ import { useStoreAction, useStoreState } from "../hooks";
 import Entry from "./Entry";
 import { ActivityIndicator, List } from "react-native-paper";
 import { View, FlatList, StyleSheet } from "react-native";
-import { EntryModel } from "../model/entry";
+import { EntryId } from "../model/entry";
 
 interface Props {
   header: React.ReactElement
-  fetchInitialCount: number
-  fetchNextCount: number
+  entry_id: EntryId
   sectionText: string
 }
 
-const EntryList: React.FC<Props> = (props) => {
+const ReplyList: React.FC<Props> = (props) => {
+
   const [isLoading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
-  const getEntries = useStoreAction(actions => actions.entries.getEntries)
-  const _entries = useStoreState(state => state.entries.items)
-  const [entries, setEntries] = useState<EntryModel[]>([])
 
-  useEffect(() => {
-    setEntries(Object.values(_entries).reverse())
-  }, [_entries])
+  const getReplies = useStoreAction(actions => actions.entries.getReplies)
+  const replies = useStoreState(state => state.entries.replies[props.entry_id])
 
   // retrieve entries onComponentMount
   useEffect(() => {
@@ -29,36 +25,21 @@ const EntryList: React.FC<Props> = (props) => {
   }, [])
 
   const refresh = () => {
-    const firstEntry = entries[0]
     if (!isRefreshing) {
       setRefreshing(true)
-      getEntries({
-        afterId: firstEntry?.entry_id
-      })
+      getReplies({entry_id: props.entry_id})
         .finally(() => setRefreshing(false))
-    }
-  }
-
-  const fetchMore = () => {
-    const lastEntry = entries[entries.length-1]
-    if (!isLoading) {
-      setLoading(true)
-      getEntries({
-        count: props.fetchNextCount,
-        beforeId: lastEntry?.entry_id
-      })
-        .finally(() => setLoading(false))
     }
   }
 
   const fetchInitial = useCallback(() => {
     if (!isLoading) {
       setLoading(true)
-      getEntries({count: props.fetchInitialCount})
+      getReplies({entry_id: props.entry_id})
         .catch((e: any) => console.log(e))
         .finally(() => setLoading(false))
     }
-  }, [getEntries])
+  }, [getReplies])
 
   const footer = (
     <View style={styles.footer}>
@@ -71,7 +52,7 @@ const EntryList: React.FC<Props> = (props) => {
 
   return (
     <FlatList 
-      data={entries} 
+      data={replies} 
       contentContainerStyle={styles.content}
       ListHeaderComponentStyle={styles.header}
       progressViewOffset={100}
@@ -82,8 +63,6 @@ const EntryList: React.FC<Props> = (props) => {
       renderItem={item => 
         <Entry entry={item.item}/>
       }
-      onEndReached={fetchMore}
-      onEndReachedThreshold={0.5}
       ListHeaderComponent={
         <>
         {props.header}
@@ -93,7 +72,7 @@ const EntryList: React.FC<Props> = (props) => {
       ListFooterComponent={
         isLoading ? footer : null
       }
-      initialNumToRender={props.fetchInitialCount}
+      initialNumToRender={10}
     />
   )
 }
@@ -110,4 +89,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default EntryList;
+export default ReplyList;

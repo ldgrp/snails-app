@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { Modal, TextInput, Text, Colors, ThemeProvider, Title, IconButton, TouchableRipple, Surface, ProgressBar, Button } from 'react-native-paper'
 import { View, StyleSheet, TouchableHighlight } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { useStoreAction } from '../hooks'
+import { EntryId } from '../model/entry'
 
-const CreatePostModal: React.FC = () => {
+const CreateReplyModal = () => {
   const navigation = useNavigation()
+  const route = useRoute()
+
+  const { entry_id } = route.params
   const [text, setText] = useState("")
   const [isPosting, setPosting] = useState(false)
   const [canPost, setCanPost] = useState(false)
@@ -20,10 +24,12 @@ const CreatePostModal: React.FC = () => {
       setCanPost(false)
     }
   }, [text])
+
+  console.log(entry_id)
   const handlePost = () => {
     if (!isPosting) {
       setPosting(true)
-      createEntry({content:text})
+      createEntry({content:text, reply_to: entry_id})
         .catch((e: string) => {
           console.log(e)
         })
@@ -60,7 +66,7 @@ const CreatePostModal: React.FC = () => {
           value={text} onChangeText={text => setText(text)}
           autoFocus={true}
           disabled={isPosting}
-          placeholder={"Ask a question"}
+          placeholder={"Reply"}
           multiline={false}/>
         <Text>
           Something something be nice...
@@ -111,4 +117,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default CreatePostModal;
+export default CreateReplyModal;

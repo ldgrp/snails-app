@@ -1,22 +1,24 @@
-import React, { useEffect } from 'react';
-import { useStoreState } from '../hooks';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useStoreAction, useStoreState } from '../hooks';
 import { View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Title, Avatar, Text, IconButton, FAB } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { Title, Avatar, Text, IconButton, FAB, ActivityIndicator, Appbar } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
-import { MainStackParamList } from './index';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { EntryModel } from '../model/entry';
+import EntryList from '../components/EntryList';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import ReplyList from '../components/ReplyList';
 
-type Props = StackScreenProps<MainStackParamList, 'Profile'>
-
-const EntryScreen: React.FC<Props> = ({route, navigation}) => {
-  const entry = useStoreState(state => state.entries.items.get(route.params.id))
+const EntryScreen = () => {
+  const route = useRoute()
+  const navigation = useNavigation()
+  const { entry } = route.params
+  const [isLoading, setLoading] = useState(false)
 
   useEffect(() => {
-
-  })
+  }, [])
 
   const avatar = (
     entry ?
@@ -28,7 +30,9 @@ const EntryScreen: React.FC<Props> = ({route, navigation}) => {
   )
 
   return (
-    <ScrollView style={styles.container}>
+    <ReplyList
+      entry_id={entry.entry_id}
+      header={
       <SafeAreaView style={styles.main}>
         <LinearGradient
         // Background Linear Gradient
@@ -43,6 +47,10 @@ const EntryScreen: React.FC<Props> = ({route, navigation}) => {
           height: styles.main.height+500,
         }}
         />
+        <Appbar.BackAction style={{marginLeft: -10}} onPress={() => navigation.goBack()}/>
+        <View style={styles.contentContainer}>
+          <Title style={styles.content}>{entry?.content}</Title>
+        </View>
         <View style={styles.authorContainer}>
           {avatar}
           <View style={styles.authorTextContainer}>
@@ -54,24 +62,34 @@ const EntryScreen: React.FC<Props> = ({route, navigation}) => {
           </Text>
           </View>
         </View>
-        <Title style={styles.content}>{entry?.content}</Title>
         <FAB
           style={styles.fab}
           icon="reply"
+          onPress={() => navigation.navigate('Create Reply', {entry_id: entry?.entry_id})}
         />
       </SafeAreaView>
-    </ScrollView>
+      }
+      sectionText={"Replies"}
+    />
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
+  root: {
+    flex: 1,
+    backgroundColor: 'blue'
   },
   main: {
     height: 300,
     backgroundColor: 'red',
     paddingHorizontal: 25,
+    zIndex: 100,
+  },
+  repliesContainer: {
+    marginVertical: 20,
+  },
+  contentContainer: {
+    marginTop: 10,
   },
   authorContainer: {
     position: "absolute",
@@ -98,14 +116,29 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "white",
     opacity: 0.95,
-    marginVertical: 40,
   },
   fab: {
     position: "absolute",
     right: 0,
     bottom: -25,
     marginRight: 25,
-  }
+  },
+  shimmer1: {
+    borderRadius: 50,
+    height: 20,
+    marginBottom: 24,
+  },
+  shimmer2: {
+    borderRadius: 50,
+    height: 20,
+    marginBottom: 24,
+  },
+  shimmer3: {
+    borderRadius: 50,
+    height: 20,
+    marginBottom: 24,
+
+  },
 })
 
 export default EntryScreen

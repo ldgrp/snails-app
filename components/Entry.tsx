@@ -1,40 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, Avatar, Surface, IconButton, Text, TouchableRipple } from "react-native-paper";
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useStoreAction } from '../hooks';
+import { useStoreState, useStoreAction } from '../hooks';
+import { EntryModel } from '../model/entry';
 
 type Props = {
-  id: string,
-  name: string,
-  content: string,
-  likesCount: number,
+  entry: EntryModel
 }
 
 const Entry: React.FC<Props> = (props) => {
+  const { entry } = props
+  const {name} = entry.author
+  const [liked, setLiked] = useState(false)
+
   const likeEntry = useStoreAction(actions => actions.entries.likeEntry)
+  const user = useStoreState(state => state.users.user)
+
+  useEffect(() => {
+    setLiked(entry.liked_by.map(u => u.user_id).includes(user!.user_id))
+  }, [entry.liked_by])
+
   const avatar = (
     <View style={styles.avatarContainer}>
       <Avatar.Text 
-        label={props.name.split(' ').map(x => x[0]).join('')}
+        label={name.split(' ').map(x => x[0]).join('')}
         size={40}
       />
     </View>
   )
 
   const likes = (
-    <TouchableRipple
-      onPress={() => likeEntry(props.id)}>
+    <TouchableWithoutFeedback
+      onPress={() => likeEntry({entry_id: entry.entry_id, set: !liked})}>
     <View style={styles.likesContainer}>
+      {liked?
+      <IconButton
+        color="red"
+        icon="heart"
+        />
+        :
       <IconButton
         icon="heart-outline"
         />
+      }
       <Text>
-        {props.likesCount}
+        {entry.liked_by.length}
       </Text>
 
     </View>
-    </TouchableRipple>
+    </TouchableWithoutFeedback>
   )
 
   const content = (
@@ -42,10 +57,10 @@ const Entry: React.FC<Props> = (props) => {
       <Text
         style={styles.contentText}
         numberOfLines={4}>
-        {props.content}
+        {entry.content}
       </Text>
       <Text style={styles.authorText}>
-        {props.name}
+        {name}
       </Text>
     </View>
   )
@@ -55,24 +70,13 @@ const Entry: React.FC<Props> = (props) => {
   return (
     <TouchableRipple
       style={styles.container}
-      onPress={() => navigation.navigate("Entry", {id: props.id})}
+      onPress={() => navigation.navigate("Entry", { entry })}
       >
       <Surface 
         style={styles.surface}>
         {avatar}
         {content}
         {likes}
-        {
-  //      <List.Item
-  //        title={props.content}
-  //        titleNumberOfLines={4}
-  //        description={props.name}
-  //        left={() => avatar}
-  //        right={() => likes}
-  //        style={styles.contentContainer}
-  //        onPress={() => navigation.navigate("Entry", {id: props.id})}
-  //      />
-        }
       </Surface>
     </TouchableRipple>
   )

@@ -1,61 +1,79 @@
-import { Action, action, Thunk, thunk } from "easy-peasy";
+import { Action, action, Thunk, thunk, Computed, computed } from "easy-peasy";
 import { Injections } from '../store';
+import { UserModel } from "./user";
 
+export type EntryId = string
 export interface EntriesModel {
-  items: Map<string, EntryModel>,
-  retrievedEntries: Action<EntriesModel, EntryModel[]>,
-  retrieveEntries: Thunk<EntriesModel, {count?: number, from_id?: string}, Injections>,
-  addEntry: Thunk<EntriesModel, string>
-  addedEntry: Action<EntriesModel, EntryModel>,
-  likeEntry: Thunk<EntriesModel, string>
-  likedEntry: Action<EntriesModel, EntryModel>
+  // a map from ids to entries in insertion order
+  items: Record<EntryId, EntryModel>,
+  replies: Record<EntryId, EntryModel[]>,
+  // liked
+  // add an item to the store
+  addItem: Action<EntriesModel, EntryModel>,
+  // add items to the store
+  addItems: Action<EntriesModel, EntryModel[]>
+  addReplies: Action<EntriesModel, {entry_id: EntryId, replies: EntryModel[]}>
+  likeEntry: Thunk<EntriesModel, {entry_id: EntryId, set: boolean}>
+  createEntry: Thunk<EntriesModel, {content: string, reply_to?: EntryId}>
+  getEntry: Thunk<EntriesModel, EntryId, Injections, EntryModel>,
+  getEntries: Thunk<EntriesModel, {count?: number, beforeId?: string, afterId?: string}, Injections>,
+  getReplies: Thunk<EntriesModel, {entry_id: EntryId} , Injections>,
 }
 
 export interface EntryModel {
   content: string
   created_at: Date
-  entry_id: string
-  liked_by: AuthorModel[]
-  replies: string[]
-  reply_to?: string
-  author: AuthorModel
-};
-
-export interface AuthorModel {
-  created_at: Date
-  name: string
-  user_id: number
-  username: string
-};
+  entry_id: EntryId
+  liked_by: UserModel[]
+  replies: EntryId[]
+  reply_to?: EntryId
+  author: UserModel
+}
 
 const entriesModel: EntriesModel = {
-  items: new Map(),
-  // append retrieved entries
-  retrievedEntries: action((state, entry) => {
-    entry.forEach(entry => state.items.set(entry.entry_id, entry))
-  }),
+  items: {},
+  replies: {},
   // retrieve the n most recent entries
-  retrieveEntries: thunk(async (actions, payload, { injections }) => {
-    const { count, from_id } = payload
+  getEntries: thunk(async (actions, payload, { injections }) => {
+    const { count, beforeId, afterId } = payload
     const { entryService: entryService } = injections
-    const entries: EntryModel[] = await entryService.retrieve(count, from_id)
-    actions.retrievedEntries(entries)
+    const entries: EntryModel[] = await entryService.getEntries(count, beforeId, afterId)
+    actions.addItems(entries)
   }),
-  addedEntry: action((state, entry) => {
-    state.items.set(entry.entry_id, entry)
+  getReplies: thunk(async (actions, payload, { injections }) => {
+    const { entry_id } = payload
+    const { entryService: entryService } = injections
+    const replies: EntryModel[] = await entryService.getReplies(entry_id)
+    actions.addReplies({entry_id, replies})
   }),
-  addEntry: thunk(async (actions, content, { injections }) => { 
+  addReplies: action((state, {entry_id, replies}) => {
+    state.replies[entry_id] = replies
+  }),
+  addItems: action((state, entries) => {
+    entries.forEach(entry => state.items[entry.entry_id] = entry)
+  }),
+  addItem: action((state, entry) => {
+    state.items[entry.entry_id] = entry
+  }),
+  createEntry: thunk(async (actions, {content, reply_to}, { injections }) => { 
     const { entryService } = injections
-    const entry: EntryModel = await entryService.add(content)
-    actions.addedEntry(entry)
+    const entry: EntryModel = await entryService.createEntry(content, reply_to)
+    actions.getEntries({})
   }),
-  likeEntry: thunk(async (actions, id, { injections }) => {
+  likeEntry: thunk(async (actions, payload, { getState, injections }) => {
+    const { entry_id, set } = payload
     const { entryService } = injections
-    const entry: EntryModel = await entryService.like(id)
-    actions.likedEntry(entry)
+    if (set) {
+      const entry: EntryModel = await entryService.likeEntry(entry_id)
+      actions.addItem(entry)
+    } else {
+      const entry: EntryModel = await entryService.unlikeEntry(entry_id)
+      actions.addItem(entry)
+    }
   }),
-  likedEntry: action((state, entry) => {
-    state.items.set(entry.entry_id, entry)
+  getEntry: thunk(async(actions, id, { getState, injections }) => {
+    const { entryService } = injections
+    return getState().items[id]
   })
 }
 

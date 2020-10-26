@@ -4,12 +4,16 @@ import EntryList from '../components/EntryList';
 import { Searchbar, FAB, Portal, Appbar, Title } from 'react-native-paper';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
-const Bar = () =>
+const Bar = () => {
+  const navigation = useNavigation()
+  return (
   <Appbar style={styles.bar}>
     <View>
       <Appbar.Action
-        icon="menu"
+        icon="camera"
+        onPress={() => navigation.navigate('Camera')}
       />
     </View>
     <View>
@@ -19,10 +23,13 @@ const Bar = () =>
     </View>
     <View>
       <Appbar.Action
-        icon="camera"
+        icon="chat"
+        onPress={() => navigation.navigate('MessageStack')}
       />
     </View>
   </Appbar>
+  )
+}
 
 const HomeScreen = () => {
   const [openModal, setOpenModal] = useState(false)
@@ -30,6 +37,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={{flex:1}}>
+      <StatusBar style="dark"/>
       <EntryList 
         header={
         <View style={styles.container}>
@@ -42,6 +50,9 @@ const HomeScreen = () => {
             />
         </View>
         }
+        fetchInitialCount={20}
+        fetchNextCount={10}
+        sectionText={"Recent"}
       />
       <FAB
         style={styles.fab}
